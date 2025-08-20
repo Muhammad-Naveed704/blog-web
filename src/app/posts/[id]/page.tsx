@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/static'
 
 interface PostPageProps {
   params: Promise<{
@@ -79,7 +80,8 @@ export default async function PostPage({ params }: PostPageProps) {
 }
 
 export async function generateStaticParams() {
-  const supabase = await createClient()
+  // Use static client to avoid cookies() in build-time context
+  const supabase = createStaticClient()
   
   const { data: posts } = await supabase
     .from('posts')

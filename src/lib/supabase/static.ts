@@ -1,0 +1,14 @@
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+
+export const createStaticClient = () => {
+	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xxvwcthqlpxvahqwhwiu.supabase.co'
+	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4dndjdGhxbHB4dmFocXdod2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NzQzNjAsImV4cCI6MjA3MTI1MDM2MH0.2ytWRQBDTu78VfULmo-BmiB5JjBILD68SQvVwO0kiLU'
+
+	if (!supabaseUrl || !supabaseAnonKey) {
+		throw new Error('Supabase URL or ANON key are not set in environment variables')
+	}
+
+	return createSupabaseClient(supabaseUrl, supabaseAnonKey)
+}
+
+
