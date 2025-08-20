@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import { Pencil, Trash2 } from 'lucide-react'
+import ConfirmDialog from '@/components/ui/confirm-dialog'
 
 interface PostCardProps {
   post: Post
@@ -20,13 +21,10 @@ export default function PostCard({ post, onDeleted }: PostCardProps) {
   const supabase = createClient()
   const canManage = user?.id === post.author_id
 
+  const [open, setOpen] = (require('react') as typeof import('react')).useState(false)
   const handleDelete = async () => {
-    const confirmed = confirm('Delete this post?')
-    if (!confirmed) return
     const { error } = await supabase.from('posts').delete().eq('id', post.id)
-    if (!error) {
-      onDeleted?.(post.id)
-    }
+    if (!error) onDeleted?.(post.id)
   }
 
   return (
@@ -51,7 +49,7 @@ export default function PostCard({ post, onDeleted }: PostCardProps) {
                 <Pencil className="h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Delete post" onClick={handleDelete}>
+            <Button variant="ghost" size="icon" aria-label="Delete post" onClick={() => setOpen(true)}>
               <Trash2 className="h-4 w-4 text-red-600" />
             </Button>
           </div>
@@ -70,6 +68,17 @@ export default function PostCard({ post, onDeleted }: PostCardProps) {
           <span>→</span>
         </div>
       </Link>
+
+      {canManage && (
+        <ConfirmDialog
+          open={open}
+          onOpenChange={setOpen}
+          title="Delete post?"
+          description="This action cannot be undone. The post will be permanently deleted."
+          confirmText="Delete"
+          onConfirm={handleDelete}
+        />
+      )}
     </article>
   )
 }

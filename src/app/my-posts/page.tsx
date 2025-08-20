@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-react'
+import ConfirmDialog from '@/components/ui/confirm-dialog'
 
 const PAGE_SIZE = 5
 
@@ -40,9 +41,21 @@ export default function MyPostsPage() {
     load(0)
   }, [user])
 
+  const [confirmId, setConfirmId] = useState<string | null>(null)
   const del = async (id: string) => {
     await supabase.from('posts').delete().eq('id', id)
-    load(page)
+    // Optimistic update
+    setPosts(prev => prev.filter(x => x.id !== id))
+    // Adjust hasMore if needed by refetching current page length
+    const from = page * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
+    const { data } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('author_id', user!.id)
+      .order('created_at', { ascending: false })
+      .range(from, to)
+    setHasMore((data || []).length === PAGE_SIZE)
   }
 
   return (
@@ -85,7 +98,7 @@ export default function MyPostsPage() {
                       variant="ghost"
                       size="icon"
                       aria-label="Delete"
-                      onClick={() => del(p.id)}
+                      onClick={() => setConfirmId(p.id)}
                     >
                       <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
@@ -95,6 +108,15 @@ export default function MyPostsPage() {
             ))}
           </div>
         )}
+
+        <ConfirmDialog
+          open={!!confirmId}
+          onOpenChange={(o)=>{ if(!o) setConfirmId(null) }}
+          title="Delete post?"
+          description="This action cannot be undone. The post will be permanently deleted."
+          confirmText="Delete"
+          onConfirm={async ()=>{ if(confirmId) { await del(confirmId); setConfirmId(null) } }}
+        />
 
         <div className="flex items-center justify-between mt-6">
           <Button variant="outline" disabled={page===0} onClick={() => { const np = Math.max(0, page-1); setPage(np); load(np) }}>Prev</Button>
