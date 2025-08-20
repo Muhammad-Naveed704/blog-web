@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Pencil, Trash2 } from 'lucide-react'
 
 const PAGE_SIZE = 5
 
@@ -58,14 +59,37 @@ export default function MyPostsPage() {
         ) : (
           <div className="space-y-3">
             {posts.map((p) => (
-              <div key={p.id} className="border rounded p-3 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{p.title}</div>
-                  <div className="text-xs text-gray-500">{new Date(p.created_at).toLocaleString()}</div>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" asChild><Link href={`/posts/${p.id}/edit`}>Edit</Link></Button>
-                  <Button variant="destructive" onClick={() => del(p.id)}>Delete</Button>
+              <div
+                key={p.id}
+                className="group rounded-xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm transition hover:shadow-md"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-gray-900 line-clamp-1">{p.title}</div>
+                    <div className="mt-1 text-xs text-gray-500 flex items-center gap-2">
+                      <span>{new Date(p.created_at).toLocaleString()}</span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${p.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}
+                      >
+                        {p.published ? 'Published' : 'Draft'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" asChild aria-label="Edit">
+                      <Link href={`/posts/${p.id}/edit`}>
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Delete"
+                      onClick={() => del(p.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

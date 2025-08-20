@@ -38,7 +38,7 @@ export default function PostList() {
 
       if (error) throw error
 
-      const newPosts = data || []
+      const newPosts = (data as any[]) || []
       
       if (append) {
         setPosts(prev => [...prev, ...newPosts])

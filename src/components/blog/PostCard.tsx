@@ -1,41 +1,76 @@
+"use client"
+
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { Post } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase/client'
+import { Pencil, Trash2 } from 'lucide-react'
 
 interface PostCardProps {
   post: Post
+  onDeleted?: (id: string) => void
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, onDeleted }: PostCardProps) {
+  const { user } = useAuth()
+  const router = useRouter()
+  const supabase = createClient()
+  const canManage = user?.id === post.author_id
+
+  const handleDelete = async () => {
+    const confirmed = confirm('Delete this post?')
+    if (!confirmed) return
+    const { error } = await supabase.from('posts').delete().eq('id', post.id)
+    if (!error) {
+      onDeleted?.(post.id)
+    }
+  }
+
   return (
-    <article className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+    <article className="relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-500 text-white text-sm font-semibold">
             {post.profiles?.full_name?.charAt(0) || post.profiles?.email?.charAt(0) || 'U'}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900">
+          <div className="leading-tight">
+            <p className="font-medium text-gray-900">
               {post.profiles?.full_name || post.profiles?.email || 'Anonymous'}
             </p>
-            <p className="text-xs text-gray-500">
-              {formatDate(post.created_at)}
-            </p>
+            <p className="text-xs text-gray-500">{formatDate(post.created_at)}</p>
           </div>
         </div>
+
+        {canManage && (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" asChild aria-label="Edit post">
+              <Link href={`/posts/${post.id}/edit`}>
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Delete post" onClick={handleDelete}>
+              <Trash2 className="h-4 w-4 text-red-600" />
+            </Button>
+          </div>
+        )}
       </div>
 
-      <Link href={`/posts/${post.id}`} className="block group">
-        <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-3">
+      <Link href={`/posts/${post.id}`} className="mt-4 block group">
+        <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
           {post.title}
         </h2>
-        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+        <p className="mt-2 text-gray-600 text-sm leading-relaxed line-clamp-3">
           {post.excerpt || post.content.substring(0, 200) + '...'}
         </p>
-        <span className="text-blue-600 text-sm font-medium group-hover:underline">
-          Read more →
-        </span>
+        <div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+          <span>Read more</span>
+          <span>→</span>
+        </div>
       </Link>
     </article>
   )
 }
+

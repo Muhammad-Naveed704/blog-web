@@ -57,6 +57,11 @@ export default function Header() {
                 Write
               </Link>
             )}
+            {user && (
+              <Link href="/profile" className="text-gray-600 hover:text-gray-900">
+                Profile
+              </Link>
+            )}
           </nav>
         </div>
 
