@@ -30,7 +30,7 @@ export default function Home() {
           Discover amazing stories and share your own thoughts with the world
         </p>
         <Button asChild size="lg">
-          <Link href="/create">Start Writing</Link>
+          <Link href="/create">Add New Post</Link>
         </Button>
       </div>
       

@@ -5,6 +5,7 @@ import { createStaticClient } from '@/lib/supabase/static'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-react'
+import ManageActions from '@/components/blog/ManageActions'
 import { createClient as createBrowserSupabase } from '@/lib/supabase/client'
 import { cookies } from 'next/headers'
 
@@ -86,41 +87,7 @@ export default async function PostPage({ params }: PostPageProps) {
   )
 }
 
-// Client component for edit/delete controls on detail page
-function ManageActions({ postId, authorId }: { postId: string, authorId: string }) {
-  'use client'
-  const supabase = createBrowserSupabase()
-  const React = require('react') as typeof import('react')
-  const { useRouter } = require('next/navigation') as typeof import('next/navigation')
-  const [canManage, setCanManage] = React.useState(false)
-  const router = useRouter()
-  React.useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setCanManage(data.user?.id === authorId)
-    })
-  }, [authorId])
-
-  const del = async () => {
-    if (!confirm('Delete this post?')) return
-    await supabase.from('posts').delete().eq('id', postId)
-    router.push('/')
-  }
-
-  if (!canManage) return null
-
-  return (
-    <div className="ml-auto flex items-center gap-1">
-      <Button variant="ghost" size="icon" asChild aria-label="Edit post">
-        <Link href={`/posts/${postId}/edit`}>
-          <Pencil className="h-4 w-4" />
-        </Link>
-      </Button>
-      <Button variant="ghost" size="icon" aria-label="Delete post" onClick={del}>
-        <Trash2 className="h-4 w-4 text-red-600" />
-      </Button>
-    </div>
-  )
-}
+// ManageActions moved to client component
 
 export async function generateStaticParams() {
   // Use static client to avoid cookies() in build-time context
