@@ -81,10 +81,13 @@ export default function Header() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/create">Write a post</Link>
+                  <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/my-posts">My Posts</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/create">Write a post</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -107,6 +110,11 @@ export default function Header() {
                 <Link href="/register">Sign Up</Link>
               </Button>
             </div>
+          )}
+          {user && (
+            <Button variant="outline" onClick={handleSignOut}>
+              Logout
+            </Button>
           )}
         </div>
       </div>

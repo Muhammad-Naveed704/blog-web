@@ -8,8 +8,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match only protected routes that need authentication
+     * Protect authenticated-only routes
      */
-    '/create/:path*'
+    '/create/:path*',
+    '/profile/:path*',
+    '/my-posts/:path*',
+    '/posts/:path*/edit'
   ],
 }

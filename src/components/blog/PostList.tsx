@@ -112,17 +112,20 @@ export default function PostList() {
         <PostCard key={post.id} post={post} />
       ))}
       
-      {hasMore && (
-        <div className="text-center pt-6">
-          <Button
-            variant="outline"
-            onClick={handleLoadMore}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Load More Posts'}
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center justify-center gap-4 pt-6">
+        <Button variant="outline" disabled={offset===0 || loading} onClick={async ()=>{
+          const newOffset = Math.max(0, offset - POSTS_PER_PAGE)
+          setOffset(newOffset)
+          await fetchPosts(newOffset)
+        }}>Prev</Button>
+        <Button
+          variant="outline"
+          onClick={handleLoadMore}
+          disabled={loading || !hasMore}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   )
 }
